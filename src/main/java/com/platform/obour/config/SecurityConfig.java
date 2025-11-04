@@ -48,6 +48,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
 
+                        .requestMatchers(HttpMethod.POST, "/api/student-answers/submit").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/student-answers/**").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET, "/api/student-answers/score/**").hasAnyRole("STUDENT", "TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/api/student-answers/**").hasAnyRole("STUDENT", "TEACHER")
+
                         .requestMatchers(HttpMethod.GET, "/api/sections/**").hasAnyRole("STUDENT", "TEACHER")
                         .requestMatchers(HttpMethod.GET, "/api/questions/**").hasAnyRole("STUDENT", "TEACHER")
 
