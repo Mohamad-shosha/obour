@@ -1,15 +1,17 @@
 package com.platform.obour.service;
 
-import com.platform.obour.dto.AuthResponse;
-import com.platform.obour.dto.LoginRequest;
-import com.platform.obour.dto.RegisterRequest;
+import com.platform.obour.dto.UserDTO;
 import com.platform.obour.entity.User;
 import com.platform.obour.entity.enums.Role;
+import com.platform.obour.mapper.UserMapper;
 import com.platform.obour.repository.UserRepository;
 import com.platform.obour.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,34 +19,27 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final UserMapper userMapper;
 
-    public AuthResponse register(RegisterRequest request) {
-        if(userRepository.findByEmail(request.email()).isPresent()) {
-            throw new RuntimeException("Email already exists");
-        }
-
-        User user = User.builder()
-                .name(request.name())
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .role(Role.valueOf(request.role()))
-                .build();
-
-        userRepository.save(user);
-
-        String token = jwtUtil.generateToken(user);
-        return new AuthResponse(token);
+    public List<UserDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(userMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public List<UserDTO> getUsersByRole(Role role) {
+        return userRepository.findByRole(role)
+                .stream()
+                .map(userMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 
-        if(!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
-        }
+    public List<UserDTO> getStudents() {
+        return getUsersByRole(Role.STUDENT);
+    }
 
-        String token = jwtUtil.generateToken(user);
-        return new AuthResponse(token);
+    public List<UserDTO> getTeachers() {
+        return getUsersByRole(Role.TEACHER);
     }
 }
