@@ -61,6 +61,15 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         String jwt = jwtUtil.generateToken(user);
-        return ResponseEntity.ok(new AuthResponse(jwt));
+
+        Map<String, Object> userData = Map.of(
+                "name", user.getName(),
+                "email", user.getEmail(),
+                "role", user.getRole().name()
+        );
+
+        AuthResponse response = new AuthResponse(jwt, userData);
+        return ResponseEntity.ok(response);
     }
+
 }

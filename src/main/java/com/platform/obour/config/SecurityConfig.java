@@ -15,6 +15,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -43,25 +49,27 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/users/**").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/api/users/").hasRole("TEACHER")
 
                         .requestMatchers(HttpMethod.POST, "/api/student-answers/submit").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.POST, "/api/student-answers/**").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.GET, "/api/student-answers/score/**").hasAnyRole("STUDENT", "TEACHER")
-                        .requestMatchers(HttpMethod.GET, "/api/student-answers/**").hasAnyRole("STUDENT", "TEACHER")
+                        .requestMatchers(HttpMethod.POST, "/api/student-answers/").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET, "/api/student-answers/score/").hasAnyRole("STUDENT", "TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/api/student-answers/").hasAnyRole("STUDENT", "TEACHER")
 
-                        .requestMatchers(HttpMethod.GET, "/api/sections/**").hasAnyRole("STUDENT", "TEACHER")
-                        .requestMatchers(HttpMethod.GET, "/api/questions/**").hasAnyRole("STUDENT", "TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/api/sections/").hasAnyRole("STUDENT", "TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/api/questions/").hasAnyRole("STUDENT", "TEACHER")
 
-                        .requestMatchers(HttpMethod.POST, "/api/sections/**").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.POST, "/api/questions/**").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.PUT, "/api/questions/**").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/questions/**").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.POST, "/api/sections/").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.POST, "/api/questions/").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.PUT, "/api/questions/").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/questions/").hasRole("TEACHER")
 
                         .anyRequest().authenticated()
                 )
@@ -70,5 +78,18 @@ public class SecurityConfig {
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/", configuration); // تطبيق CORS فقط على مسارات API
+        return source;
     }
 }
