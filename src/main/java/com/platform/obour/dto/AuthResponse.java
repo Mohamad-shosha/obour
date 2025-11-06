@@ -1,5 +1,7 @@
 package com.platform.obour.dto;
 
 public record AuthResponse(
-        String token
+        String token,
+        String name,
+        String role
 ) {}

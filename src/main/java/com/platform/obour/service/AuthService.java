@@ -50,8 +50,6 @@ public class AuthService {
         return ResponseEntity.ok(Map.of("message", "User registered successfully"));
     }
 
-
-
     public ResponseEntity<AuthResponse> login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
@@ -61,6 +59,11 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         String jwt = jwtUtil.generateToken(user);
-        return ResponseEntity.ok(new AuthResponse(jwt));
+
+        return ResponseEntity.ok(new AuthResponse(
+                jwt,
+                user.getName(),
+                user.getRole().name()
+        ));
     }
 }
