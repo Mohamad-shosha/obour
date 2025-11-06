@@ -14,6 +14,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -23,20 +25,32 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
-    public ResponseEntity<String> register(RegisterRequest request) {
+    public ResponseEntity<Map<String, String>> register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            return ResponseEntity.badRequest().body("Email already exists");
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("message", "Email already exists"));
         }
 
         User user = new User();
         user.setName(request.name());
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRole(Role.valueOf(request.role().toUpperCase()));
+
+        try {
+            user.setRole(Role.valueOf(request.role().trim().toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("message", "Invalid role. Must be STUDENT or TEACHER"));
+        }
+
         userRepository.save(user);
 
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.ok(Map.of("message", "User registered successfully"));
     }
+
+
 
     public ResponseEntity<AuthResponse> login(LoginRequest request) {
         authenticationManager.authenticate(
