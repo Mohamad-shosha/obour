@@ -66,4 +66,20 @@ public class AuthService {
                 user.getRole().name()
         ));
     }
+    public ResponseEntity<Map<String, Object>> getCurrentUser(String token) {
+        String email = jwtUtil.extractUsername(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Map<String, Object> response = Map.of(
+                "id", user.getId(),
+                "name", user.getName(),
+                "email", user.getEmail(),
+                "role", user.getRole().name()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
 }

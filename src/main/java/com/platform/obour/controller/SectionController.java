@@ -28,4 +28,13 @@ public class SectionController {
     public ResponseEntity<SectionDTO> create(@RequestBody SectionDTO dto) {
         return ResponseEntity.ok(sectionService.create(dto));
     }
+    @GetMapping("/root")
+    public ResponseEntity<List<SectionDTO>> getRootSections() {
+        return ResponseEntity.ok(sectionService.getRootSections());
+    }
+
+    @GetMapping("/parent/{parentId}")
+    public ResponseEntity<List<SectionDTO>> getChildrenByParentId(@PathVariable Long parentId) {
+        return ResponseEntity.ok(sectionService.getChildrenByParentId(parentId));
+}
 }

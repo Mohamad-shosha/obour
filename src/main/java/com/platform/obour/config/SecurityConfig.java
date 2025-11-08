@@ -47,22 +47,17 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-
                         .requestMatchers(HttpMethod.GET, "/api/users/**").hasRole("TEACHER")
-
-                        .requestMatchers(HttpMethod.POST, "/api/student-answers/submit").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.POST, "/api/student-answers/**").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.GET, "/api/student-answers/score/**").hasAnyRole("STUDENT", "TEACHER")
                         .requestMatchers(HttpMethod.GET, "/api/student-answers/**").hasAnyRole("STUDENT", "TEACHER")
-
                         .requestMatchers(HttpMethod.GET, "/api/sections/**").hasAnyRole("STUDENT", "TEACHER")
                         .requestMatchers(HttpMethod.GET, "/api/questions/**").hasAnyRole("STUDENT", "TEACHER")
-
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/sections/**").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.POST, "/api/questions/**").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.PUT, "/api/questions/**").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.DELETE, "/api/questions/**").hasRole("TEACHER")
-
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

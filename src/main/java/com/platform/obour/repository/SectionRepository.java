@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface SectionRepository extends JpaRepository<Section, Long> {
     List<Section> findByType(String type);
+    List<Section> findByParentIsNull();
+    List<Section> findByParentId(Long parentId);
 }

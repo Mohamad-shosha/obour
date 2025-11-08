@@ -39,4 +39,18 @@ public class SectionService {
         Section saved = sectionRepository.save(s);
         return sectionMapper.toDTO(saved);
     }
+
+    public List<SectionDTO> getRootSections() {
+        return sectionRepository.findByParentIsNull()
+                .stream()
+                .map(sectionMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<SectionDTO> getChildrenByParentId(Long parentId) {
+        return sectionRepository.findByParentId(parentId)
+                .stream()
+                .map(sectionMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 }
