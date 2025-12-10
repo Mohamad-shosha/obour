@@ -47,6 +47,7 @@ public class StudentAnswerController {
         List<StudentAnswerDTO> answers = studentAnswerService.getBySectionAndStudent(sectionId, studentId);
         return ResponseEntity.ok(answers);
     }
+
     @GetMapping("/score/{studentId}")
     public ResponseEntity<Integer> getStudentScore(@PathVariable Long studentId) {
         return ResponseEntity.ok(studentAnswerService.calculateStudentScore(studentId));
@@ -56,5 +57,4 @@ public class StudentAnswerController {
     public ResponseEntity<Integer> getScoreBySection(@PathVariable Long studentId, @PathVariable Long sectionId) {
         return ResponseEntity.ok(studentAnswerService.calculateScoreBySection(studentId, sectionId));
     }
-
 }
